@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BESS Load Growth – Test Page</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1117; color: #e0e6f0; min-height: 100vh; padding: 2rem; }
+    h1 { font-size: 1.6rem; font-weight: 600; color: #7eb8f7; margin-bottom: 0.25rem; }
+    .subtitle { font-size: 0.85rem; color: #6b7a99; margin-bottom: 2rem; }
+    .controls { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .controls label { font-size: 0.8rem; color: #8a9bbf; display: flex; flex-direction: column; gap: 0.3rem; }
+    select, input[type=range] { background: #1c2030; border: 1px solid #2e3a52; color: #e0e6f0; border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.85rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: #161b27; border: 1px solid #2e3a52; border-radius: 8px; padding: 1.25rem; }
+    .card h2 { font-size: 0.9rem; font-weight: 500; color: #8a9bbf; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    canvas { width: 100% !important; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { text-align: left; color: #6b7a99; font-weight: 500; padding: 0.4rem 0.6rem; border-bottom: 1px solid #2e3a52; }
+    td { padding: 0.45rem 0.6rem; border-bottom: 1px solid #1c2030; color: #c8d4e8; }
+    tr:last-child td { border-bottom: none; }
+    td.up { color: #4caf87; } td.down { color: #e05c5c; }
+    .stat-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .stat { background: #161b27; border: 1px solid #2e3a52; border-radius: 8px; padding: 1rem 1.5rem; flex: 1; min-width: 130px; }
+    .stat .val { font-size: 1.8rem; font-weight: 700; color: #7eb8f7; line-height: 1; }
+    .stat .lbl { font-size: 0.75rem; color: #6b7a99; margin-top: 0.3rem; }
+  </style>
+</head>
+<body>
+<h1>BESS Load Growth Dashboard</h1>
+<p class="subtitle">Synthetic test data — pipeline validation page</p>
+<div class="controls">
+  <label>Region
+    <select id="region-select">
+      <option value="ERCOT">ERCOT</option>
+      <option value="PJM">PJM</option>
+      <option value="CAISO">CAISO</option>
+      <option value="MISO">MISO</option>
+    </select>
+  </label>
+  <label>CAGR: <span id="cagr-display">5%</span>
+    <input type="range" id="cagr-slider" min="1" max="15" value="5" step="0.5">
+  </label>
+</div>
+<div class="stat-row">
+  <div class="stat"><div class="val" id="stat-peak">--</div><div class="lbl">Peak Load (GW)</div></div>
+  <div class="stat"><div class="val" id="stat-growth">--</div><div class="lbl">10-yr Growth (GW)</div></div>
+  <div class="stat"><div class="val" id="stat-bess">--</div><div class="lbl">Est. BESS Need (GWh)</div></div>
+  <div class="stat"><div class="val" id="stat-year">2034</div><div class="lbl">Horizon Year</div></div>
+</div>
+<div class="grid">
+  <div class="card"><h2>Projected Load Growth</h2><canvas id="load-chart" height="220"></canvas></div>
+  <div class="card"><h2>Annual Incremental Capacity (GW)</h2><canvas id="delta-chart" height="220"></canvas></div>
+</div>
+<div class="card">
+  <h2>Detailed Projections</h2>
+  <table id="data-table">
+    <thead><tr><th>Year</th><th>Load (GW)</th><th>YoY &#916; (GW)</th><th>Cum. Growth</th><th>Est. BESS (GWh)</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+<script>
+  const BASE_LOADS = { ERCOT: 85, PJM: 155, CAISO: 52, MISO: 120 };
+  const BESS_RATIO = 2.4;
+  let loadChart, deltaChart;
+  function generateData(region, cagrPct) {
+    const base = BASE_LOADS[region];
+    const cagr = cagrPct / 100;
+    const rows = [];
+    for (let yr = 2024; yr <= 2034; yr++) {
+      const n = yr - 2024;
+      const load = +(base * Math.pow(1 + cagr, n)).toFixed(2);
+      const prev = n === 0 ? base : +(base * Math.pow(1 + cagr, n - 1)).toFixed(2);
+      const delta = +(load - prev).toFixed(2);
+      const cumGrowth = +(load - base).toFixed(2);
+      const bess = +(cumGrowth * BESS_RATIO).toFixed(1);
+      rows.push({ year: yr, load, delta, cumGrowth, bess });
+    }
+    return rows;
+  }
+  function updateStats(rows) {
+    const last = rows[rows.length - 1];
+    document.getElementById('stat-peak').textContent = last.load.toFixed(1);
+    document.getElementById('stat-growth').textContent = last.cumGrowth.toFixed(1);
+    document.getElementById('stat-bess').textContent = last.bess.toFixed(0);
+  }
+  function updateTable(rows) {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const dc = r.delta > 0 ? 'up' : 'down';
+      tr.innerHTML = `<td>${r.year}</td><td>${r.load.toFixed(2)}</td><td class="${dc}">${r.delta>0?'+':''}${r.delta.toFixed(2)}</td><td class="up">+${r.cumGrowth.toFixed(2)}</td><td>${r.bess.toFixed(1)}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  function updateCharts(rows) {
+    const labels = rows.map(r => r.year);
+    const loads = rows.map(r => r.load);
+    const deltas = rows.slice(1).map(r => r.delta);
+    const deltaLabels = rows.slice(1).map(r => r.year);
+    if (loadChart) loadChart.destroy();
+    if (deltaChart) deltaChart.destroy();
+    loadChart = new Chart(document.getElementById('load-chart').getContext('2d'), { type: 'line', data: { labels, datasets: [{ data: loads, borderColor: '#7eb8f7', backgroundColor: 'rgba(126,184,247,0.08)', borderWidth: 2, pointRadius: 3, fill: true, tension: 0.3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7a99' }, grid: { color: '#1c2030' } }, y: { ticks: { color: '#6b7a99' }, grid: { color: '#1c2030' } } } } });
+    deltaChart = new Chart(document.getElementById('delta-chart').getContext('2d'), { type: 'bar', data: { labels: deltaLabels, datasets: [{ data: deltas, backgroundColor: 'rgba(76,175,135,0.7)', borderColor: '#4caf87', borderWidth: 1, borderRadius: 3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7a99' }, grid: { color: '#1c2030' } }, y: { ticks: { color: '#6b7a99' }, grid: { color: '#1c2030' } } } } });
+  }
+  function render() {
+    const region = document.getElementById('region-select').value;
+    const cagr = parseFloat(document.getElementById('cagr-slider').value);
+    document.getElementById('cagr-display').textContent = cagr + '%';
+    const rows = generateData(region, cagr);
+    updateStats(rows); updateTable(rows); updateCharts(rows);
+  }
+  document.getElementById('region-select').addEventListener('change', render);
+  document.getElementById('cagr-slider').addEventListener('input', render);
+  render();
+</script>
+</body>
+</html>
