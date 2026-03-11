@@ -7,26 +7,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1117; color: #e0e6f0; min-height: 100vh; padding: 2rem; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #ffffff; color: #1a202c; min-height: 100vh; padding: 2rem; }
     h1 { font-size: 1.6rem; font-weight: 600; color: #7eb8f7; margin-bottom: 0.25rem; }
-    .subtitle { font-size: 0.85rem; color: #6b7a99; margin-bottom: 2rem; }
+    .subtitle { font-size: 0.85rem; color: #4a5568; margin-bottom: 2rem; }
     .controls { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .controls label { font-size: 0.8rem; color: #8a9bbf; display: flex; flex-direction: column; gap: 0.3rem; }
-    select, input[type=range] { background: #1c2030; border: 1px solid #2e3a52; color: #e0e6f0; border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.85rem; }
+    .controls label { font-size: 0.8rem; color: #2d3748; display: flex; flex-direction: column; gap: 0.3rem; }
+    select, input[type=range] { background: #eef1f6; border: 1px solid #d1d9e6; color: #1a202c; border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.85rem; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
     @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
-    .card { background: #161b27; border: 1px solid #2e3a52; border-radius: 8px; padding: 1.25rem; }
-    .card h2 { font-size: 0.9rem; font-weight: 500; color: #8a9bbf; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .card { background: #f5f7fa; border: 1px solid #d1d9e6; border-radius: 8px; padding: 1.25rem; }
+    .card h2 { font-size: 0.9rem; font-weight: 500; color: #2d3748; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
     canvas { width: 100% !important; }
     table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-    th { text-align: left; color: #6b7a99; font-weight: 500; padding: 0.4rem 0.6rem; border-bottom: 1px solid #2e3a52; }
-    td { padding: 0.45rem 0.6rem; border-bottom: 1px solid #1c2030; color: #c8d4e8; }
+    th { text-align: left; color: #4a5568; font-weight: 500; padding: 0.4rem 0.6rem; border-bottom: 1px solid #2e3a52; }
+    td { padding: 0.45rem 0.6rem; border-bottom: 1px solid #1c2030; color: #2d3748; }
     tr:last-child td { border-bottom: none; }
     td.up { color: #4caf87; } td.down { color: #e05c5c; }
     .stat-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-    .stat { background: #161b27; border: 1px solid #2e3a52; border-radius: 8px; padding: 1rem 1.5rem; flex: 1; min-width: 130px; }
+    .stat { background: #f5f7fa; border: 1px solid #d1d9e6; border-radius: 8px; padding: 1rem 1.5rem; flex: 1; min-width: 130px; }
     .stat .val { font-size: 1.8rem; font-weight: 700; color: #7eb8f7; line-height: 1; }
-    .stat .lbl { font-size: 0.75rem; color: #6b7a99; margin-top: 0.3rem; }
+    .stat .lbl { font-size: 0.75rem; color: #4a5568; margin-top: 0.3rem; }
   </style>
 </head>
 <body>
@@ -104,8 +104,8 @@
     const deltaLabels = rows.slice(1).map(r => r.year);
     if (loadChart) loadChart.destroy();
     if (deltaChart) deltaChart.destroy();
-    loadChart = new Chart(document.getElementById('load-chart').getContext('2d'), { type: 'line', data: { labels, datasets: [{ data: loads, borderColor: '#7eb8f7', backgroundColor: 'rgba(126,184,247,0.08)', borderWidth: 2, pointRadius: 3, fill: true, tension: 0.3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7a99' }, grid: { color: '#1c2030' } }, y: { ticks: { color: '#6b7a99' }, grid: { color: '#1c2030' } } } } });
-    deltaChart = new Chart(document.getElementById('delta-chart').getContext('2d'), { type: 'bar', data: { labels: deltaLabels, datasets: [{ data: deltas, backgroundColor: 'rgba(76,175,135,0.7)', borderColor: '#4caf87', borderWidth: 1, borderRadius: 3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7a99' }, grid: { color: '#1c2030' } }, y: { ticks: { color: '#6b7a99' }, grid: { color: '#1c2030' } } } } });
+    loadChart = new Chart(document.getElementById('load-chart').getContext('2d'), { type: 'line', data: { labels, datasets: [{ data: loads, borderColor: '#7eb8f7', backgroundColor: 'rgba(126,184,247,0.08)', borderWidth: 2, pointRadius: 3, fill: true, tension: 0.3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7a99' }, grid: { color: '#e2e8f0' } }, y: { ticks: { color: '#6b7a99' }, grid: { color: '#e2e8f0' } } } } });
+    deltaChart = new Chart(document.getElementById('delta-chart').getContext('2d'), { type: 'bar', data: { labels: deltaLabels, datasets: [{ data: deltas, backgroundColor: 'rgba(76,175,135,0.7)', borderColor: '#4caf87', borderWidth: 1, borderRadius: 3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#6b7a99' }, grid: { color: '#e2e8f0' } }, y: { ticks: { color: '#6b7a99' }, grid: { color: '#e2e8f0' } } } } });
   }
   function render() {
     const region = document.getElementById('region-select').value;
